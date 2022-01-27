@@ -107,18 +107,40 @@ namespace CreditCards.UITests
                 DemoHelper.Pause();
 
                 driver.Navigate().GoToUrl(homeUrl);
+                IWebElement generationTokenElement = driver.FindElement(By.Id("GenerationToken"));
+                string initialToken = generationTokenElement.Text;
                 DemoHelper.Pause();
 
                 driver.Navigate().Back();
                 DemoHelper.Pause();
 
                 driver.Navigate().Forward();
+                string reloadToken = driver.FindElement(By.Id("GenerationToken")).Text;
                 DemoHelper.Pause();
 
+                Assert.NotEqual(initialToken, reloadToken);
                 Assert.Equal(homeTitle, driver.Title);
                 Assert.Equal(homeUrl, driver.Url);
 
                 //ToDo: assert that page was reloaded
+            }
+        }
+
+        [Fact]
+
+        public void DisplayProdutcsAndRates()
+        {
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Navigate().GoToUrl(homeUrl);
+                DemoHelper.Pause();
+
+                IWebElement firstTableCell = driver.FindElement(By.TagName("td"));
+                string firstProduct = firstTableCell.Text;
+
+                Assert.Equal("Easy Credit Card", firstProduct);
+
+                //ToDo: check rest of the product table
             }
         }
     }
