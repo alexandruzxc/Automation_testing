@@ -4,6 +4,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using Xunit.Abstractions;
+using System.Collections.ObjectModel;
 
 namespace CreditCards.UITests
 {
@@ -11,8 +12,11 @@ namespace CreditCards.UITests
     public class CreditCardApplicationShould
     {
         private const string homeUrl = "http://localhost:44108/";
+        private const string homeTitle = "Home Page - Credit Cards";
         private const string ApplyUrl = "http://localhost:44108/Apply";
         private const string AboutUrl = "http://localhost:44108/Home/About";
+        private const string contactUrl = "http://localhost:44108/Home/Contact";
+        private const string contactTitle = "Contact - Credit Cards";
 
         private readonly ITestOutputHelper output; 
 
@@ -74,6 +78,7 @@ namespace CreditCards.UITests
             using (IWebDriver driver = new ChromeDriver())
             {
                 driver.Navigate().GoToUrl(homeUrl);
+                driver.Manage().Window.Minimize();
                 DemoHelper.Pause();
 
                 WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(11));
@@ -259,6 +264,68 @@ namespace CreditCards.UITests
                 Assert.Equal("Single", driver.FindElement(By.Id("RelationshipStatus")).Text);
                 Assert.Equal("Email", driver.FindElement(By.Id("BusinessSource")).Text);
 
+            }
+        }
+
+        [Fact]
+
+        public void OpenContactFooterLinkInNewTab()
+        {
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Navigate().GoToUrl(homeUrl);
+                driver.FindElement(By.Id("ContactFooter")).Click();
+
+                ReadOnlyCollection<string> allTabs = driver.WindowHandles;
+                string homePageTab = allTabs[0];
+                string contactTab = allTabs[1];
+
+                driver.SwitchTo().Window(contactTab);
+
+                DemoHelper.Pause();
+
+                Assert.Equal(contactTitle, driver.Title);
+                Assert.EndsWith(contactUrl, driver.Url);
+
+            }
+        }
+        [Fact]
+        public void AllertifLiveChatClosed()
+        {
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Navigate().GoToUrl(homeUrl);
+                driver.FindElement(By.Id("LiveChat")).Click();
+
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+                IAlert alert = wait.Until(ExpectedConditions.AlertIsPresent());
+
+                Assert.Equal("Live chat is currently closed.", alert.Text);
+
+                DemoHelper.Pause();
+                alert.Accept();
+                DemoHelper.Pause();
+            }
+        }
+        [Fact]
+        public void NotNavigateToAboutUsWhenCancelClicked()
+        {
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Navigate().GoToUrl(homeUrl);
+                Assert.Equal(homeTitle, driver.Title);
+
+                driver.FindElement(By.Id("LearnAboutUs")).Click();
+
+                DemoHelper.Pause();
+
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+                IAlert alertBox = wait.Until(ExpectedConditions.AlertIsPresent());
+
+                alertBox.Dismiss();
+
+                Assert.Equal(homeTitle, driver.Title);
             }
         }
     }

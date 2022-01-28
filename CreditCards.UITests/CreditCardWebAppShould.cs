@@ -3,6 +3,10 @@ using Xunit;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System.Collections.ObjectModel;
+using ApprovalTests.Reporters;
+using ApprovalTests.Reporters.Windows;
+using System.IO;
+using ApprovalTests;
 
 namespace CreditCards.UITests
 {
@@ -185,6 +189,57 @@ namespace CreditCards.UITests
 
             }
         }
+
+        [Fact]
+
+        public void NotDisplayeCookieUseMessage()
+        {
+            using (IWebDriver driver = new ChromeDriver())
+            {
+
+                driver.Navigate().GoToUrl(homeUrl);
+                
+                driver.Manage().Cookies.AddCookie(new Cookie("acceptedCookies", "true"));
+
+                driver.Navigate().Refresh();
+
+                ReadOnlyCollection<IWebElement> message = driver.FindElements(By.Id("CookiesBeingUsed"));
+
+                Assert.Empty(message);
+
+                Cookie cookieValue = driver.Manage().Cookies.GetCookieNamed("acceptedCookies");
+                Assert.Equal("true", cookieValue.Value);
+
+                driver.Manage().Cookies.DeleteCookieNamed("acceptedCookies");
+                driver.Navigate().Refresh();
+                Assert.NotNull(driver.FindElement(By.Id("CookiesBeingUsed")));
+
+            }
+        }
+
+        [Fact]
+        [UseReporter(typeof(BeyondCompare4Reporter))]
+
+        public void RenderAboutPage()
+        {
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Navigate().GoToUrl(aboutUrl);
+
+                ITakesScreenshot screenShotDriver = (ITakesScreenshot)driver;
+
+                Screenshot screenshot = screenShotDriver.GetScreenshot();
+
+                screenshot.SaveAsFile("aboutpage.bmp", ScreenshotImageFormat.Bmp);
+
+                FileInfo file = new FileInfo("aboutpage.bmp");
+
+                Approvals.Verify(file); 
+
+            }
+        }
+
+
 
     }
 }
