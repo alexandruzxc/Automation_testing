@@ -94,14 +94,16 @@ namespace CreditCards.UITests
         {
             using (IWebDriver driver = new ChromeDriver())
             {
-                output.WriteLine($"{DateTime.Now.ToLongTimeString()} Settings implicit wait");
-                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(35);
 
                 output.WriteLine($"{DateTime.Now.ToLongTimeString()} Navigate to '{homeUrl}'");
                 driver.Navigate().GoToUrl(homeUrl);
 
-                output.WriteLine($"{DateTime.Now.ToLongTimeString()} Findind Element");
-                IWebElement applyLink = driver.FindElement(By.ClassName("customer-service-apply-now"));
+                output.WriteLine($"{DateTime.Now.ToLongTimeString()} Findind Element using explicit way");
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(35));
+
+
+
+                IWebElement applyLink = wait.Until(ExpectedConditions.ElementToBeClickable(By.ClassName("customer-service-apply-now")));
 
                 output.WriteLine($"{DateTime.Now.ToLongTimeString()} Found element Displayed ={applyLink} Enabled={applyLink.Enabled}");
                 output.WriteLine($"{DateTime.Now.ToLongTimeString()} Clicking Element");
@@ -150,6 +152,33 @@ namespace CreditCards.UITests
 
                 Assert.Equal("Credit Card Application - Credit Cards", driver.Title);
                 Assert.Equal(ApplyUrl, driver.Url);
+
+            }
+        }
+
+        [Fact]
+
+        public void BeSummitedWhenValid()
+        {
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Navigate().GoToUrl(ApplyUrl);
+
+                driver.FindElement(By.Id("FirstName")).SendKeys("Marcus"); //type a string intro an input element by finding it with class ID
+                DemoHelper.Pause();
+
+                driver.FindElement(By.Id("LastName")).SendKeys("Crisan");
+                DemoHelper.Pause();
+
+                driver.FindElement(By.Id("FrequentFlyerNumber")).SendKeys("123456-A");
+                DemoHelper.Pause();
+
+                driver.FindElement(By.Id("Age")).SendKeys("4");
+                DemoHelper.Pause();
+
+                driver.FindElement(By.Id("GrossAnnualIncome")).SendKeys("50000");
+                DemoHelper.Pause(500);
+
 
             }
         }
