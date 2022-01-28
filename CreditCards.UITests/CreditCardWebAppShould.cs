@@ -2,6 +2,7 @@
 using Xunit;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using System.Collections.ObjectModel;
 
 namespace CreditCards.UITests
 {
@@ -11,6 +12,8 @@ namespace CreditCards.UITests
         private const string aboutUrl = "http://localhost:44108/Home/About";
         private const string homeTitle = "Home Page - Credit Cards";
         private const string aboutTitle = "About - Credit Cards";
+        private const string contactUrl = "http://localhost:44108/Home/Contact";
+        private const string contactTitle = "Contact - Credit Cards";
 
 
         [Fact]
@@ -135,13 +138,33 @@ namespace CreditCards.UITests
                 driver.Navigate().GoToUrl(homeUrl);
                 DemoHelper.Pause();
 
-                IWebElement firstTableCell = driver.FindElement(By.TagName("td"));
-                string firstProduct = firstTableCell.Text;
+                ReadOnlyCollection<IWebElement> tableCells = driver.FindElements(By.TagName("td"));
 
-                Assert.Equal("Easy Credit Card", firstProduct);
+                Assert.Equal("Easy Credit Card", tableCells[0].Text);
+                Assert.Equal("20% APR", tableCells[1].Text);
+                
+                Assert.Equal("Silver Credit Card", tableCells[2].Text);
+                Assert.Equal("18% APR", tableCells[3].Text);
+
+                Assert.Equal("Gold Credit Card", tableCells[4].Text);
+                Assert.Equal("17% APR", tableCells[5].Text);
 
                 //ToDo: check rest of the product table
             }
         }
+        [Fact]
+        private void NavigateToContactPage()
+        {
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Navigate().GoToUrl(contactUrl);
+                DemoHelper.Pause();
+
+                Assert.Equal(contactUrl, driver.Url);
+                Assert.Equal(contactTitle, driver.Title);
+
+            }
+        }
+
     }
 }
