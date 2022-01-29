@@ -328,5 +328,7 @@ namespace CreditCards.UITests
                 Assert.Equal(homeTitle, driver.Title);
             }
         }
+
+        [Fact]
     }
 }
